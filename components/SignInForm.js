@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { View, Text } from 'react-native';
 import { FormLabel, FormInput, Button } from 'react-native-elements';
 import axios from 'axios';
+import firebase from 'firebase';
 
 const API_PATH = 'https://us-central1-one-time-password-dd26a.cloudfunctions.net/';
 
@@ -18,8 +19,9 @@ class SignInForm extends Component {
     try {
       const response = await axios.post(`${API_PATH}verifyOneTimePassword`, {phone, code});
       const { token } = response.data;
-      this.setState({verified: true})
+      await firebase.auth().signInWithCustomToken(token);
     } catch (err) {
+      console.log(err);
       this.setState({error: 'Could not verify code'});
     }
 
@@ -30,14 +32,6 @@ class SignInForm extends Component {
       return (
         <View>
           <Text>Error Occurred: {this.state.error}</Text>
-        </View>
-      );
-    }
-
-    if (this.state.verified) {
-      return (
-        <View>
-          <Text>Verified!</Text>
         </View>
       );
     }
